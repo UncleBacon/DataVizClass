@@ -9,7 +9,7 @@ ActiveSheet.DisplayPageBreaks = False
 
     Dim ws As Worksheet
     Dim UItem As Collection
-    Dim rng, crit, sumcrit, datecrit, opnrng, clsrng, VarC, VarF, VarI,VarJ, VarK, VarL As Range
+    Dim rng, crit, sumcrit, datecrit, opnrng, clsrng, VarI As Range
     Dim i, mxday, mnday, mxvol, mxchng, mnchng, lrow As Long
     Dim opn, cls As Double
     Dim StartTime As Double
@@ -44,16 +44,11 @@ ActiveSheet.DisplayPageBreaks = False
 
         'iterate through for as many times as there are unique tickers
         For i = 1 To UItem.Count
-        set VarC = ws.range("C"&i+1) 
-        set VarF = ws.range("F"&i+1)
         Set VarI = ws.Range("I" & i + 1)
-        set VarJ = ws.range("J"&i+1)
-        set VarK = ws.range("K"&i+1)
-        set VarL = ws.range("L"&i+1)
 
-        'write unique tickers to I column and sum of volume in L column 
+        'write unique tickers to I column and sum of volume in L column
         VarI = UItem(i)
-        VarL = Application.WorksheetFunction.SumIf(crit, UItem(i), sumcrit)
+        ws.Range("L" & i + 1) = Application.WorksheetFunction.SumIf(crit, UItem(i), sumcrit)
        
        ' find first and last day and put in variables
         mxday = Application.WorksheetFunction.MaxIfs(datecrit, crit, VarI)
@@ -61,22 +56,22 @@ ActiveSheet.DisplayPageBreaks = False
        
        'put closing and opening prices into variables
         If crit = VarI And datecrit = mxday Then
-            cls = VarC.Value
+            cls = ws.Range("C" & i + 1).Value
         
         If crit = VarI And datecrit = mnday Then
-            opn = VarF.Value
+            opn = ws.Range("F" & i + 1).Value
         End If
         End If
        'calculate difference and % change for each and place in columns J and K
-        VarJ = cls - opn
-        VarK = (cls - opn) / opn
+        ws.Range("J" & i + 1) = cls - opn
+        ws.Range("K" & i + 1) = (cls - opn) / opn
         
         
         'conditional formating for positive or negative difference
-        If VarJ > 0 Then
-            VarJ.Interior.Color = vbGreen
-        ElseIf VarJ < 0 Then
-            VarJ.Interior.Color = vbRed
+        If ws.Range("J" & i + 1) > 0 Then
+            ws.Range("J" & i + 1).Interior.Color = vbGreen
+        ElseIf ws.Range("J" & i + 1) < 0 Then
+            ws.Range("J" & i + 1).Interior.Color = vbRed
         End If
         
         'get Max Volume
@@ -89,11 +84,11 @@ ActiveSheet.DisplayPageBreaks = False
         ws.Range("p3") = Application.WorksheetFunction.Min(ws.Range("k2", ws.Range("k" & Rows.Count).End(xlUp)))
         
         ' put ticker symbols next to summary data
-        If VarL = ws.Range("P4") Then
+        If ws.Range("L" & i + 1) = ws.Range("P4") Then
             ws.Range("O4") = VarI
-        ElseIf VarK = ws.Range("P3") Then
+        ElseIf ws.Range("K" & i + 1) = ws.Range("P3") Then
             ws.Range("O3") = VarI
-        ElseIf VarK = ws.Range("P2") Then
+        ElseIf ws.Range("K" & i + 1) = ws.Range("P2") Then
             ws.Range("O2") = VarI
         End If
         Next
@@ -107,15 +102,14 @@ ActiveSheet.DisplayPageBreaks = False
 'Determine how many seconds code took to run
   SecondsElapsed = Round(Timer - StartTime, 2)
 
-'Notify user how long it took code to run in seconds
-  MsgBox "This code ran successfully in " & SecondsElapsed & " seconds", vbInformation
+
 ' turn on background excel functions
 ActiveSheet.DisplayPageBreaks = True
 Application.EnableEvents = True
 Application.Calculation = xlCalculationAutomatic
 Application.DisplayStatusBar = True
 Application.ScreenUpdating = True
+
+'Notify user how long it took code to run in seconds
+  MsgBox "This code ran successfully in " & SecondsElapsed & " seconds", vbInformation
 End Sub
-
-
-
